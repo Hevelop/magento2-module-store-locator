@@ -13,7 +13,6 @@
 namespace Smile\StoreLocator\Block;
 
 use Magento\Framework\DataObject\IdentityInterface;
-use Magento\Framework\Serialize\SerializerInterface;
 use Smile\Map\Api\MapInterface;
 use Smile\Map\Model\AddressFormatter;
 use Smile\Retailer\Api\Data\RetailerInterface;
@@ -90,7 +89,7 @@ class Search extends \Magento\Framework\View\Element\Template implements Identit
         AddressFormatter $addressFormatter,
         \Smile\StoreLocator\Helper\Schedule $scheduleHelper,
         \Smile\StoreLocator\Model\Retailer\ScheduleManagement $scheduleManagement,
-        SerializerInterface $serializer,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
         $data = []
     ) {
         parent::__construct($context, $data);
@@ -101,7 +100,10 @@ class Search extends \Magento\Framework\View\Element\Template implements Identit
         $this->scheduleHelper            = $scheduleHelper;
         $this->scheduleManager           = $scheduleManagement;
         $this->cacheInterface            = $context->getCache();
-        $this->serializer = $serializer;
+        if (interface_exists(\Magento\Framework\Serialize\SerializerInterface::class)) {
+            // for magento later then 2.2
+            $this->serializer = $objectManager->get(\Magento\Framework\Serialize\SerializerInterface::class);
+        }
         $this->addData(
             [
                 'cache_lifetime' => false,
